@@ -1,0 +1,27 @@
+@startuml person-student-teacher
+class Person {
+    -name: str
+    -age: int
+    +introduce(): str
+    ' returns a string that introduces the person's name and age.
+}
+
+class Student {
+    -grade: str
+    +study(hours: int): str
+    ' returns a string that states that this student studied for a certain number of hours (including student's name).
+    +get_profile(): str
+    ' returns a string representation of the student's profile including name, age, and grade
+}
+
+class Teacher {
+    -subject: str
+    +teach(topic: str): str
+    ' returns a string that states that this teacher teaches about a given topic in their subject  (including teacher's name)
+    +grade_student(student: Student, grade:str)
+    ' changes a student's grade
+}
+
+Person <|-- Student
+Person <|-- Teacher
+@enduml

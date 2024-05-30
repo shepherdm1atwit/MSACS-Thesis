@@ -1,0 +1,184 @@
+Below is an instruction that describes a task. Write a response that appropriately completes the request.
+
+### Instruction:
+Generate complete and fully implemented Python code based on the following annotated PlantUML activity diagram including the import of all necessary libraries. Do not implement "main" functionality:
+
+@startuml Transaction
+'"Transaction" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, amount, type)" {
+  :Create Transaction object with amount and type string;
+}
+stop
+@enduml
+
+@startuml BankAccount
+'"BankAccount" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, number, owner, balance)" {
+    :Create BankAccount object with account number,
+    owner, balance, and empty list transactions;
+}
+repeat :wait for method call;
+  split
+  partition "deposit(self, amount)" {
+    :Add amount to balance;
+    :Add new Transaction(amount, "Deposit")
+    to transactions;
+  }
+  split again
+  partition "withdraw(self, amount)" {
+    if (balance >= amount) then (yes)
+      :Subtract amount from balance;
+      :Add new Transaction(amount, "Withdrawal")
+      to transactions;
+    else (no)
+      :Return "Insufficient Funds";
+    endif
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Customer
+'"Customer" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, name, account)" {
+  :Create Customer object with name 
+  and BankAccount account;
+}
+stop
+@enduml
+
+@startuml Bank
+'"Bank" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self)" {
+  :Create Bank object with 
+  empty list customers;
+}
+repeat :wait for method call;
+  split
+  partition "add_customer(self, customer)" {
+    :Add given Customer to customers;
+  }
+  split again
+  partition "remove_customer(self, customer)" {
+    :Remove given Customer from customers;
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+### Response:
+
+```python
+from typing import List
+import uuid
+
+class Transaction():
+    def __init__(self, amount: float, transaction_type: str):
+        self._amount = amount
+        self._transaction_type = transaction_type
+    
+    @property
+    def amount(self):
+        return self._amount
+        
+    @property
+    def transaction_type(self):
+        return self._transaction_type
+
+class BankAccount():
+    def __init__(self, account_number: int, owner: str, initial_balance: float):
+        self._account_number = account_number
+        self._owner = owner
+        self._initial_balance = initial_balance
+        self._transactions = []
+    
+    @property
+    def account_number(self):
+        return self._account_number
+    
+    @property
+    def owner(self):
+        return self._owner
+    
+    @property
+    def initial_balance(self):
+        return self._initial_balance
+    
+    @property
+    def transactions(self):
+        return self._transactions
+    
+    def deposit(self, amount: float):
+        self._transactions.append(Transaction(amount, 'Deposit'))
+        self._initial_balance += amount
+    
+    def withdraw(self, amount: float):
+        if self._initial_balance < amount:
+            raise ValueError('Insufficient funds')
+        self._transactions.append(Transaction(amount, 'Withdrawal'))
+        self._initial_balance -= amount
+
+class Customer():
+    def __init__(self, name: str, bank_account: BankAccount):
+        self._name = name
+        self._bank_account = bank_account
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @property
+    def bank_account(self):
+        return self._bank_account
+
+class Bank():
+    def __init__(self):
+        self._customers = []
+    
+    @property
+    def customers(self):
+        return self._customers
+    
+    def add_customer(self, customer: Customer):
+        self._customers.append(customer)
+    
+    def remove_customer(self, customer: Customer):
+        try:
+            self._customers.remove(customer)
+        except ValueError as e:
+            print("No such customer in bank.")
+
+def main() -> None:
+    # Create objects
+    john = Customer('John', BankAccount(1234567890, 'John Smith', 100))
+    mary = Customer('Mary', BankAccount(9876543210, 'Mary Johnson', 200))
+    bank = Bank()
+    bank.add_customer(john)
+    bank.add_customer(mary)
+
+    # Perform operations
+    john.bank_account.deposit(50)
+    mary.bank_account.withdraw(100)
+    john.bank_account.withdraw(200)
+
+    # Print results
+    print(f'{john.name}: ${john.bank_account.initial_balance}\n')
+    print(f'{mary.name}: ${mary.bank_account.initial_balance}\n')
+    print('\n'.join([str(x) for x in john.bank_account.transactions]))
+    print('\n'.join([str(y) for y in mary.bank_account.transactions]))
+
+if __name__ == '__main__':
+    main()
+```

@@ -1,0 +1,215 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML activity diagram including the import of all necessary libraries. Do not implement "main" functionality:
+
+@startuml Item
+'"Item" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, name, price)" {
+  :Create Item object with name string and price float;
+}
+repeat :wait for method call;
+  partition "~__eq__(self, other)" {
+    if (other is instance of Item) then (yes)
+      if (self name & price = other name & price) then (yes)
+        :Return True;
+      else (no)
+        :Return False;
+      endif
+    else (no)
+      :Return False;
+    endif
+  }
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Store
+'"Store" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, name)" {
+    :Create Store object with 
+    name & empty Item list;
+}
+repeat :wait for method call;
+  split
+  partition "add_items(self, items)" {
+    :Add all items from items 
+    parameter to object items;
+  }
+  split again
+  partition "has_item(self, item)" {
+    if (item in items list) then (yes)
+      :Return True;
+    else (no)
+      :Return False;
+    endif
+  }
+  split again
+  partition "print_items(self)" {
+    :Print names of each item in items list;
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Customer
+'"Customer" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, name)" {
+    :Create Customer object with 
+    name & empty owned items list, 
+    shopping list, and cart list;
+}
+repeat :wait for method call;
+  split
+  partition "add_to_shopping_list(self, items)" {
+    :Add all items from items 
+    not already in shopping list
+    to shopping list;
+  }
+  split again
+  partition "add_to_cart(self, item)" {
+    :Add item to cart;
+    :Print string stating this Customer 
+    added this item to their cart;
+  }
+  split again
+  partition "visit_store(self, store)" {
+    :Empty cart;
+    :Print string stating this 
+    Customer visits this Store;
+    :Add all items on shopping 
+    list that store has to cart;
+    :Remove items in cart from shopping list;
+    :Add items in cart to owned items list;
+    if (cart has items in it) then (yes)
+      :Create trip results string stating 
+      what this customer bought at the store;
+    else (no)
+      :Create trip results string stating 
+      that this customer bought nothing 
+      at this store;
+    endif
+    :Empty cart;
+    :Print trip results string, value of
+    self.get_status(), and "\n";
+  }
+  split again
+  partition "get_status(self)" {
+    if (shopping list has items in it) then (yes)
+      :Status string states what items
+      this customer still needs;
+    else (no)
+      :Status string states that customer
+      doesn't need anything;
+    endif
+    if (owned items list has items in it) then (yes)
+      :Append statement listing items this
+      customer owns to status string;
+    else (no)
+      :Append statement that this customer 
+      owns nothing to status string;
+    endif
+    :Return status string;
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+
+@enduml
+
+### Assistant
+
+```python
+class Item():
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+    
+    def __eq__(self, other):
+        return type(other) == Item and \
+            self.name == other.name and \
+            self.price == other.price
+        
+class Store():
+    def __init__(self, name):
+        self.name = name
+        self.items = []
+    
+    def add_items(self, items):
+        for i in range(len(items)):
+            self.items.append(items[i])
+            
+    def has_item(self, item):
+        return item in self.items
+    
+    def print_items(self):
+        for i in range(len(self.items)):
+            print(self.items[i].name)
+
+class Customer():
+    def __init__(self, name):
+        self.name = name
+        self.owned_items = []
+        self.shopping_list = []
+        self.cart = []
+    
+    def add_to_shopping_list(self, items):
+        for i in range(len(items)):
+            if items[i] not in self.shopping_list:
+                self.shopping_list.append(items[i])
+                
+    def add_to_cart(self, item):
+        self.cart.append(item)
+        print("{} adds {} to their cart.".format(self.name, item))
+        
+    def visit_store(self, store):
+        self.empty_cart()
+        print("{} visits {}".format(self.name, store.name))
+        for i in range(len(self.shopping_list)):
+            if store.has_item(self.shopping_list[i]):
+                self.cart.append(self.shopping_list[i])
+                self.shopping_list.remove(self.shopping_list[i])
+        result = ""
+        if len(self.cart) > 0:
+            for i in range(len(self.cart)):
+                result += "{}, ".format(self.cart[i])
+            result = result[:-2] + "."
+        else:
+            result = "nothing."
+        print("They buy {}".format(result))
+        for i in range(len(self.cart)):
+            self.owned_items.append(self.cart[i])
+        self.empty_cart()
+        print("{}\n{}".format(self.get_status(), "\n"))
+        
+    def get_status(self):
+        result = ""
+        if len(self.shopping_list) > 0:
+            for i in range(len(self.shopping_list)):
+                result += "{}, ".format(self.shopping_list[i])
+            result = result[:-2] + "."
+        else:
+            result = "nothing."
+        result += "\n"
+        if len(self.owned_items) > 0:
+            for i in range(len(self.owned_items)):
+                result += "{}, ".format(self.owned_items[i])
+            result = result[:-2] + "."
+        else:
+            result += "nothing."
+        return result
+    
+    def empty_cart(self):
+        del self.cart[:]
+```

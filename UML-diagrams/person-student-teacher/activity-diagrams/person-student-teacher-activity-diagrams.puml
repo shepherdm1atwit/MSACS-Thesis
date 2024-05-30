@@ -1,0 +1,65 @@
+@startuml Person
+'"Person" class functionality
+skinparam defaultTextAlignment center
+start
+partition constructor {
+  :Create Person object with name and age;
+}
+repeat :wait for method call;
+  partition introduce(self) {
+    :Return introduction string
+    containing name and age;
+  }
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Student
+'"Student(Person)" class functionality
+skinparam defaultTextAlignment center
+start
+partition constructor {
+    :Create Student object with name and age 
+    (from superclass), and grade;
+}
+repeat :wait for method call;
+  split
+  partition "study(self, hours)" {
+    :Return string containing 
+    name and hours studied;
+  }
+  split again
+  partition "get_profile(self)" {
+    :Return student profile string;
+    'string in "Name: {self.name}\nAge: {self.age}\nGrade: {self.grade}" format
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Teacher
+'"Teacher(Person)" class functionality
+skinparam defaultTextAlignment center
+start
+partition constructor {
+    :Create Teacher object with name and age 
+    (from superclass), and subject taught;
+}
+repeat :wait for method call;
+  split
+  partition "teach(self, topic)" {
+    :Return string containing name, topic 
+    taught about, and subject taught;
+  }
+  split again
+  partition "grade_student(self, student, grade)" {
+    :Change given Student object's grade;
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml

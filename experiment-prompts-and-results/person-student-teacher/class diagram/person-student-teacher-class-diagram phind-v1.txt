@@ -1,0 +1,82 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries:
+
+@startuml person-student-teacher
+class Person {
+    -name: str
+    -age: int
+    +introduce(): str
+    ' returns a string that introduces the person's name and age.
+}
+
+class Student {
+    -grade: str
+    +study(hours: int): str
+    ' returns a string that states that this student studied for a certain number of hours (including student's name).
+    +get_profile(): str
+    ' returns a string representation of the student's profile including name, age, and grade
+}
+
+class Teacher {
+    -subject: str
+    +teach(topic: str): str
+    ' returns a string that states that this teacher teaches about a given topic in their subject  (including teacher's name)
+    +grade_student(student: Student, grade:str)
+    ' changes a student's grade
+}
+
+Person <|-- Student
+Person <|-- Teacher
+@enduml
+
+### Assistant
+
+Here is the Python implementation of your request:
+```python
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def introduce(self):
+        return f"Hello, my name is {self.name} and I am {self.age} years old."
+
+
+class Student(Person):
+    def __init__(self, name, age, grade):
+        super().__init__(name, age)
+        self.grade = grade
+
+    def study(self, hours):
+        return f"{self.name}, you have been studying for {hours} hours today!"
+    
+    def get_profile(self):
+        return f"Name: {self.name}, Age: {self.age}, Grade: {self.grade}"
+
+
+class Teacher(Person):
+    def __init__(self, name, age, subject):
+        super().__init__(name, age)
+        self.subject = subject
+
+    def teach(self, topic):
+        return f"{self.name} is teaching about {topic} in {self.subject}."
+    
+    def grade_student(self, student, grade):
+        if isinstance(student, Student):
+            student.grade = grade
+        else:
+            print("Invalid student object")
+            
+person1 = Student('John', 20, 'A')
+print(person1.study(3)) # "John, you have been studying for 3 hours today!"
+print(person1.get_profile()) # "Name: John, Age: 20, Grade: A"
+
+person2 = Teacher('Mary', 45, 'Mathematics')
+print(person2.teach('Calculus')) # "Mary is teaching about Calculus in Mathematics."
+person2.grade_student(person1, 'B+') # Changes John's grade to B+
+print(person1.get_profile()) # "Name: John, Age: 20, Grade: B+"
+```

@@ -1,0 +1,133 @@
+Below is an instruction that describes a task. Write a response that appropriately completes the request.
+
+### Instruction:
+Generate complete and fully implemented Python code based on the following annotated PlantUML activity diagram including the import of all necessary libraries. Do not implement "main" functionality:
+
+@startuml Transaction
+'"Transaction" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, amount, type)" {
+  :Create Transaction object with amount and type string;
+}
+stop
+@enduml
+
+@startuml BankAccount
+'"BankAccount" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, number, owner, balance)" {
+    :Create BankAccount object with account number,
+    owner, balance, and empty list transactions;
+}
+repeat :wait for method call;
+  split
+  partition "deposit(self, amount)" {
+    :Add amount to balance;
+    :Add new Transaction(amount, "Deposit")
+    to transactions;
+  }
+  split again
+  partition "withdraw(self, amount)" {
+    if (balance >= amount) then (yes)
+      :Subtract amount from balance;
+      :Add new Transaction(amount, "Withdrawal")
+      to transactions;
+    else (no)
+      :Return "Insufficient Funds";
+    endif
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Customer
+'"Customer" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, name, account)" {
+  :Create Customer object with name 
+  and BankAccount account;
+}
+stop
+@enduml
+
+@startuml Bank
+'"Bank" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self)" {
+  :Create Bank object with 
+  empty list customers;
+}
+repeat :wait for method call;
+  split
+  partition "add_customer(self, customer)" {
+    :Add given Customer to customers;
+  }
+  split again
+  partition "remove_customer(self, customer)" {
+    :Remove given Customer from customers;
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+### Response:
+
+```python
+from uml import *
+import sys
+
+class Transaction():
+    def __init__(self, amount, type):
+        self.amount = amount
+        self.type = type
+
+class BankAccount():
+    def __init__(self, number, owner, balance=0):
+        self.number = number
+        self.owner = owner
+        self.balance = balance
+        self.transactions = []
+
+    def deposit(self, amount):
+        self.balance += amount
+        transaction = Transaction(amount, 'Deposit')
+        self.transactions.append(transaction)
+
+    def withdraw(self, amount):
+        if self.balance < amount:
+            return "Insufficient funds"
+        else:
+            self.balance -= amount
+            transaction = Transaction(amount, 'Withdrawal')
+            self.transactions.append(transaction)
+
+class Customer():
+    def __init__(self, name, account):
+        self.name = name
+        self.account = account
+
+class Bank():
+    def __init__(self):
+        self.customers = []
+
+    def add_customer(self, customer):
+        self.customers.append(customer)
+
+    def remove_customer(self, customer):
+        try:
+            index = self.customers.index(customer)
+            del self.customers[index]
+        except ValueError as e:
+            print("Customer does not exist in bank.")
+
+```
+
+Note: The `uml` library used here is just a placeholder for any other UML-to-Python converter you may use. It's important to ensure that the generated code can be executed without errors before implementing additional functionalities or main methods. 

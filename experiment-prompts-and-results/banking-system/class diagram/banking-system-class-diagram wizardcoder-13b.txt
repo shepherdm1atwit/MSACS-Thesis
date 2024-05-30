@@ -1,0 +1,97 @@
+Below is an instruction that describes a task. Write a response that appropriately completes the request.
+
+### Instruction:
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries. Do not implement "main" functionality:
+
+@startuml banking-system
+class Transaction {
+  -amount: float
+  -type: str
+  ' "Withdrawal" or "Deposit"
+}
+
+class BankAccount {
+  -number: str
+  -owner: str
+  -balance: float
+  -transactions: List[Transaction]
+
+  +deposit(amount: float): str
+  ' deposit amount into this account balance and append matching Transaction to transactions
+  +withdraw(amount: float): str
+  ' attempt to withdraw amount from account balance, or return "Insufficient funds" if amount > balance and append matching Transaction to transactions
+
+}
+
+class Customer {
+  -name: str
+  -account: BankAccount
+}
+
+class Bank {
+  -customers: List[Customer]
+
+  +add_customer(customer: Customer)
+  ' add a Customer to customers
+  +remove_customer(customer: Customer)
+  ' remove a Customer from customers
+}
+
+BankAccount "1" -- "*" Transaction: has
+Customer "1" -- "1" BankAccount: owns
+Bank "1" -- "*" Customer: has
+@enduml
+
+
+### Response:
+
+```python
+from typing import List
+import uuid
+
+class Transaction:
+    def __init__(self, amount: float, transaction_type: str):
+        self._id = uuid.uuid4()
+        self.amount = amount
+        self.transaction_type = transaction_type
+
+class BankAccount:
+    def __init__(self, number: int, owner: str):
+        self.number = number
+        self.owner = owner
+        self.balance = 0.
+        self.transactions = []
+
+    def deposit(self, amount: float) -> None:
+        self.balance += amount
+        self.transactions.append(Transaction(amount=amount, transaction_type="Deposit"))
+
+    def withdraw(self, amount: float) -> str:
+        if self.balance >= amount:
+            self.balance -= amount
+            self.transactions.append(Transaction(amount=-amount, transaction_type="Withdrawal"))
+            return f"Successfully withdrew ${amount}"
+        else:
+            return "Insufficient funds"
+
+class Customer:
+    def __init__(self, name: str, account: BankAccount):
+        self.name = name
+        self.account = account
+
+class Bank:
+    def __init__(self):
+        self.customers = []
+
+    def add_customer(self, customer: Customer) -> None:
+        self.customers.append(customer)
+
+    def remove_customer(self, customer: Customer) -> bool:
+        try:
+            self.customers.remove(customer)
+            return True
+        except ValueError:
+            return False
+```
+
+This implementation includes classes for `Transaction`, `BankAccount` and `Customer`. The `Bank` class contains methods to manage adding/removing customers and their associated accounts. Note that we use UUID library to generate unique IDs for each transaction object created. Also note that the `BankAccount` class keeps track of its transactions in a list called `transactions`. Each time a deposit or withdrawal occurs, a new `Transaction` object is added to this list using the `deposit()` and `withdraw()` methods respectively. These methods also update the account's balance accordingly. Finally, the `Customer` class simply stores information about the person who owns the account and which account they have. 

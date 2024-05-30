@@ -1,0 +1,115 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries:
+
+@startuml store-customer
+
+class Item {
+    -name: str
+    -price: float
+    +__init__(name: str, price: float): None
+    +__eq__(other: Item) -> bool: bool
+}
+
+class Store {
+    -name: str
+    -items: List[Item]
+    +__init__(name: str): None
+    +add_items(items: List[Item]): None
+    ' adds items from "items" list to this store's list of items
+    +has_item(item: Item) -> bool: bool
+    ' checks if this store has a given item
+    +print_items(): None
+    ' prints all items this store has
+}
+
+class Customer {
+    -name: str
+    -owned_items: List[Item]
+    -shopping_list: List[Item]
+    -cart: List[Item]
+    +__init__(name: str): None
+    +add_to_shopping_list(items: List[Item]): None
+    ' adds items from "items" list to this customer's shopping list if they are not already in this customer's list
+    +add_to_cart(item: Item): None
+    ' adds an item to this customer's cart and prints that they have added it to their cart
+    +visit_store(store: Store): None
+    ' makes this customer visit a store, adds all items from this customer's shopping list that are sold at that store has to the customer's cart, adds all items from cart to customer's "owned" list, removes all items in cart from shopping list, empties cart, prints what the customer bought at this store and prints customer's current status (from get_status)
+    +get_status() -> str: str
+    ' returns a string describing the items on the customer's shopping list and the items the customer owns
+}
+
+Store "1" -- "*" Item : has
+Customer "1" -- "*" Item : needs
+Customer "1" -- "*" Item : has
+Customer "1" -- "*" Item : buys
+Customer "1" -- "*" Store : visits
+
+@enduml
+
+
+### Assistant
+Here is the Python implementation for the problem:
+
+```python
+from typing import List
+
+class Item:
+    def __init__(self, name: str, price: float):
+        self.name = name
+        self.price = price
+    
+    def __eq__(self, other: 'Item') -> bool:
+        return self.name == other.name and self.price == other.price
+
+class Store:
+    def __init__(self, name: str):
+        self.name = name
+        self.items = []
+    
+    def add_items(self, items: List['Item']):
+        for item in items:
+            if item not in self.items:
+                self.items.append(item)
+                
+    def has_item(self, item: 'Item') -> bool:
+        return item in self.items
+        
+    def print_items(self):
+        for item in self.items:
+            print(f'{item.name}, ${item.price}')
+            
+class Customer:
+    def __init__(self, name: str):
+        self.name = name
+        self.owned_items = []
+        self.shopping_list = []
+        self.cart = []
+    
+    def add_to_shopping_list(self, items: List['Item']):
+        for item in items:
+            if item not in self.shopping_list:
+                self.shopping_list.append(item)
+                
+    def add_to_cart(self, item: 'Item'):
+        if item not in self.cart:
+            self.cart.append(item)
+            print(f'Added {item.name} to cart.')
+            
+    def visit_store(self, store: 'Store'):
+        for item in self.shopping_list[:]:
+            if store.has_item(item):
+                self.add_to_cart(item)
+                self.owned_items.append(item)
+                self.shopping_list.remove(item)
+        self.cart.clear()
+        print('Bought items:', ', '.join([item.name for item in self.owned_items]))
+        print(self.get_status())
+        
+    def get_status(self) -> str:
+        return f'{self.name} wants {", ".join([item.name for item in self.shopping_list])} and owns {", ".join([item.name for item in self.owned_items])}'
+```
+This python script creates classes as per the UML diagram. The `Item` class represents an item with attributes `name` and `price`. The `Store` class represents a store which can add items, check if it has a specific item and print its items. 
+The `Customer` class represents a customer who can add items to his/her shopping list, add those items to the cart when available at a store, visit a store and after purchasing, remove purchased items from the shopping list and clear the cart. It also provides functionality to get the current status of the customer i.e., what he/she still wants and what he/she owns.

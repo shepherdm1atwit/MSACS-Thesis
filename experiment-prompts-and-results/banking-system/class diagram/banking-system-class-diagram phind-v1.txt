@@ -1,0 +1,95 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries:
+
+@startuml banking-system
+class Transaction {
+  -amount: float
+  -type: str
+  ' "Withdrawal" or "Deposit"
+}
+
+class BankAccount {
+  -number: str
+  -owner: str
+  -balance: float
+  -transactions: List[Transaction]
+
+  +deposit(amount: float): str
+  ' deposit amount into this account balance and append matching Transaction to transactions
+  +withdraw(amount: float): str
+  ' attempt to withdraw amount from account balance, or return "Insufficient funds" if amount > balance and append matching Transaction to transactions
+
+}
+
+class Customer {
+  -name: str
+  -account: BankAccount
+}
+
+class Bank {
+  -customers: List[Customer]
+
+  +add_customer(customer: Customer)
+  ' add a Customer to customers
+  +remove_customer(customer: Customer)
+  ' remove a Customer from customers
+}
+
+BankAccount "1" -- "*" Transaction: has
+Customer "1" -- "1" BankAccount: owns
+Bank "1" -- "*" Customer: has
+@enduml
+
+
+### Assistant
+
+Here is the Python implementation for your request:
+```python
+from typing import List
+
+class Transaction:
+    def __init__(self, amount:float, type:str):
+        self.amount = amount
+        assert type in ["Withdrawal", "Deposit"]
+        self.type = type
+
+class BankAccount:
+    def __init__(self, number:str, owner:str, balance:float=0.0, transactions:List[Transaction]=[]):
+        self.number = number
+        self.owner = owner
+        self.balance = balance
+        self.transactions = transactions
+
+    def deposit(self, amount:float)->str:
+        self.balance += amount
+        transaction = Transaction(amount, "Deposit")
+        self.transactions.append(transaction)
+        return f'Amount {amount}$ was successfully deposited.'
+
+    def withdraw(self, amount:float)->str:
+        if (self.balance < amount):
+            return 'Insufficient funds'
+        else:
+            self.balance -= amount
+            transaction = Transaction(amount, "Withdrawal")
+            self.transactions.append(transaction)
+            return f'Amount {amount}$ was successfully withdrawn.'
+
+class Customer:
+    def __init__(self, name:str, account:BankAccount):
+        self.name = name
+        self.account = account
+
+class Bank:
+    def __init__(self, customers:List[Customer]=[]):
+        self.customers = customers
+
+    def add_customer(self, customer:Customer):
+        self.customers.append(customer)
+
+    def remove_customer(self, customer:Customer):
+        self.customers.remove(customer)
+```

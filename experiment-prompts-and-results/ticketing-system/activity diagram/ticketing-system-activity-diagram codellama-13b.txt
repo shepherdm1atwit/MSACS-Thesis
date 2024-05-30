@@ -1,0 +1,157 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML activity diagram including the import of all necessary libraries. Do not implement "main" functionality:
+
+@startuml Ticket
+'"Ticket" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, ticket_id, customer, description)" {
+  :Create Ticket object with ticket_id, description, 
+  customer, no assigned_agent, and ~"Open" status;
+}
+:Wait for agent to be assigned;
+partition "assign_agent(self, agent)" {
+  :Set assigned_agent to agent;
+  :Add this Ticket to agent's tickets;
+}
+stop
+@enduml
+
+@startuml Customer
+'"Customer" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, name, ticket_system, contact_details)" {
+  :Create Customer object with name, contact 
+  details and ticket_system;
+}
+
+repeat :wait for method call;
+  partition "submit_ticket(self, description)" {
+    :Create Ticket using 
+    ticket_system.create_ticket(self, description);
+    :Return created ticket;
+  }
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Agent
+'"Agent" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, name)" {
+  :Create Agent object with name 
+  and empty tickets list;
+}
+stop
+@enduml
+
+@startuml TicketSystem
+'"TicketSystem" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self)" {
+  :Create TicketSystem object with empty
+  tickets, customers, and agents lists;
+}
+
+repeat :wait for method call;
+  split
+  partition "create_customer(self, name, contact_details)" {
+    :Create new Customer with name, this 
+    TicketSystem and contact_details;
+    :Add this Customer to customers;
+    :Return this Customer;
+  }
+  split again
+  partition "create_ticket(self, customer, description)" {
+    :Create new Ticket with customer 
+    submitting ticket and description;
+    :Add this Ticket to tickets;
+    :Return this Ticket;
+  }
+  split again
+  partition "create_agent(self, name)" {
+    :Create new Agent with name; 
+    :Add this Agent to agents;
+    :Return this Agent;
+  }
+  split again
+  partition "close_ticket(self, ticket)" {
+    :Set ticket status to "Closed"; 
+    if (ticket has agent assigned) then (yes)
+      :Remove ticket from assigned agent's tickets;
+    endif
+  }
+  split again
+  partition "assign_ticket(self, ticket, agent)" {
+    :Assign agent to ticket;
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+### Assistant
+
+```python
+class Ticket():
+    def __init__(self, ticket_id, customer, description):
+        self.ticket_id = ticket_id
+        self.description = description
+        self.status = 'Open'
+        self.assigned_agent = None
+        
+    def assign_agent(self, agent):
+        self.assigned_agent = agent
+    
+class Customer():
+    def __init__(self, name, ticket_system, contact_details):
+        self.name = name
+        self.contact_details = contact_details
+        self.tickets = []
+        self.ticket_system = ticket_system
+        
+    def submit_ticket(self, description):
+        return self.ticket_system.create_ticket(self, description)
+    
+class Agent():
+    def __init__(self, name):
+        self.name = name
+        self.tickets = []
+        
+class TicketSystem():
+    def __init__(self):
+        self.customers = []
+        self.agents = []
+        self.tickets = []
+        
+    def create_customer(self, name, contact_details):
+        customer = Customer(name, self, contact_details)
+        self.customers.append(customer)
+        return customer
+    
+    def create_ticket(self, customer, description):
+        ticket = Ticket(len(self.tickets), customer, description)
+        self.tickets.append(ticket)
+        return ticket
+    
+    def create_agent(self, name):
+        agent = Agent(name)
+        self.agents.append(agent)
+        return agent
+    
+    def close_ticket(self, ticket):
+        ticket.status = 'Closed'
+        if ticket.assigned_agent != None:
+            ticket.assigned_agent.remove_ticket(ticket)
+            
+    def assign_ticket(self, ticket, agent):
+        ticket.assign_agent(agent)
+```

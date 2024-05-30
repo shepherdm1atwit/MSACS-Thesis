@@ -1,0 +1,126 @@
+Below is an instruction that describes a task. Write a response that appropriately completes the request.
+
+### Instruction:
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries:
+
+@startuml store-customer
+
+class Item {
+    -name: str
+    -price: float
+    +__init__(name: str, price: float): None
+    +__eq__(other: Item) -> bool: bool
+}
+
+class Store {
+    -name: str
+    -items: List[Item]
+    +__init__(name: str): None
+    +add_items(items: List[Item]): None
+    ' adds items from "items" list to this store's list of items
+    +has_item(item: Item) -> bool: bool
+    ' checks if this store has a given item
+    +print_items(): None
+    ' prints all items this store has
+}
+
+class Customer {
+    -name: str
+    -owned_items: List[Item]
+    -shopping_list: List[Item]
+    -cart: List[Item]
+    +__init__(name: str): None
+    +add_to_shopping_list(items: List[Item]): None
+    ' adds items from "items" list to this customer's shopping list if they are not already in this customer's list
+    +add_to_cart(item: Item): None
+    ' adds an item to this customer's cart and prints that they have added it to their cart
+    +visit_store(store: Store): None
+    ' makes this customer visit a store, adds all items from this customer's shopping list that are sold at that store has to the customer's cart, adds all items from cart to customer's "owned" list, removes all items in cart from shopping list, empties cart, prints what the customer bought at this store and prints customer's current status (from get_status)
+    +get_status() -> str: str
+    ' returns a string describing the items on the customer's shopping list and the items the customer owns
+}
+
+Store "1" -- "*" Item : has
+Customer "1" -- "*" Item : needs
+Customer "1" -- "*" Item : has
+Customer "1" -- "*" Item : buys
+Customer "1" -- "*" Store : visits
+
+@enduml
+
+
+### Response:
+```python
+import typing
+
+class Item:
+    def __init__(self, name: str, price: float):
+        self.name = name
+        self.price = price
+    
+    def __eq__(self, other: Item) -> bool:
+        return self.name == other.name and self.price == other.price
+
+class Store:
+    def __init__(self, name: str):
+        self.name = name
+        self.items = []
+        
+    def add_items(self, items: typing.List[Item]):
+        for item in items:
+            if item not in self.items:
+                self.items.append(item)
+                
+    def has_item(self, item: Item) -> bool:
+        return item in self.items
+    
+    def print_items(self):
+        print("Items available at", self.name+":")
+        for i, item in enumerate(self.items):
+            print(i+1, "-", item.name, ": $"+str(item.price))
+
+class Customer:
+    def __init__(self, name: str):
+        self.name = name
+        self.owned_items = []
+        self.shopping_list = []
+        self.cart = []
+        
+    def add_to_shopping_list(self, items: typing.List[Item]):
+        for item in items:
+            if item not in self.shopping_list:
+                self.shopping_list.append(item)
+            
+    def add_to_cart(self, item: Item):
+        if item not in self.cart:
+            self.cart.append(item)
+            print(f"{self.name} added {item.name} to their cart.")
+    
+    def visit_store(self, store: Store):
+        for item in self.shopping_list:
+            if store.has_item(item):
+                self.add_to_cart(item)
+        for item in self.cart:
+            self.owned_items.append(item)
+        self.cart = []
+        print(f"{self.name} bought the following items:")
+        for item in self.cart:
+            print(item.name)
+        self.cart = []
+        print(f"{self.name}'s new owned items: ", [item.name for item in self.owned_items])
+        print(f"{self.name}'s updated shopping list: ", [item.name for item in self.shopping_list])
+        
+    def get_status(self) -> str:
+        return f"{self.name}\nShopping List:\n{', '.join([item.name for item in self.shopping_list])}\nOwned Items:\n{', '.join([item.name for item in self.owned_items])}"
+
+# Example usage:
+apple = Item("Apple", 0.5)
+banana = Item("Banana", 0.75)
+orange = Item("Orange", 1.25)
+market = Store("Market")
+john = Customer("John")
+john.add_to_shopping_list([apple, banana, orange])
+market.add_items([apple, banana])
+john.visit_store(market)
+print(john.get_status())
+``` 

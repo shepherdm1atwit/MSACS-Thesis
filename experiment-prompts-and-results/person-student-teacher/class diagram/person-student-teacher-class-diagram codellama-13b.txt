@@ -1,0 +1,108 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries. Do not implement "main" functionality:
+
+@startuml person-student-teacher
+class Person {
+    -name: str
+    -age: int
+    +introduce(): str
+    ' returns a string that introduces the person's name and age.
+}
+
+class Student {
+    -grade: str
+    +study(hours: int): str
+    ' returns a string that states that this student studied for a certain number of hours (including student's name).
+    +get_profile(): str
+    ' returns a string representation of the student's profile including name, age, and grade
+}
+
+class Teacher {
+    -subject: str
+    +teach(topic: str): str
+    ' returns a string that states that this teacher teaches about a given topic in their subject  (including teacher's name)
+    +grade_student(student: Student, grade:str)
+    ' changes a student's grade
+}
+
+Person <|-- Student
+Person <|-- Teacher
+@enduml
+
+### Assistant
+
+```python
+import random
+from typing import List
+
+def get_random_string() -> str:
+    return f"{random.randrange(10)}"
+
+class Person:
+    def __init__(self, name: str = None, age: int = None):
+        self._name = name or get_random_string()
+        self._age = age or random.randrange(25)
+    
+    @property
+    def name(self) -> str:
+        return self._name
+        
+    @property
+    def age(self) -> int:
+        return self._age
+    
+    def introduce(self) -> str:
+        return f"My name is {self.name}, I am {self.age} years old."
+
+class Student(Person):
+    def __init__(self, name: str = None, age: int = None, grade: str = None):
+        super().__init__(name=name, age=age)
+        self._grade = grade or get_random_string()
+    
+    @property
+    def grade(self) -> str:
+        return self._grade
+    
+    def study(self, hours: int) -> str:
+        return f"I have been studying for {hours} hours today!"
+    
+    def get_profile(self) -> str:
+        return f"Name: {self.name}\nAge: {self.age}\nGrade: {self.grade}"
+
+class Teacher(Person):
+    def __init__(self, name: str = None, age: int = None, subject: str = None):
+        super().__init__(name=name, age=age)
+        self._subject = subject or get_random_string()
+    
+    @property
+    def subject(self) -> str:
+        return self._subject
+    
+    def teach(self, topic: str) -> str:
+        return f"Today we will be discussing {topic} in our {self.subject} lesson!"
+    
+    def grade_student(self, student: Student, grade: str) -> None:
+        if grade == "A":
+            print("Great job!")
+        elif grade == "B":
+            print("Good effort.")
+        else:
+            print("Keep trying.")
+
+if __name__ == "__main__":
+    students = [Student(), Student(), Student()]
+    teachers = [Teacher(), Teacher(), Teacher()]
+    for i in range(len(students)):
+        print(f"\n\nSTUDENT #{i+1}")
+        print(students[i].get_profile())
+        print("\n\nTEACHER #1")
+        print(teachers[0].teach("Math"))
+        print("\n\nTEACHER #2")
+        print(teachers[1].teach("Science"))
+        print("\n\nTEACHER #3")
+        print(teachers[2].teach("English"))
+        input("\nPress Enter to continue...")
+```

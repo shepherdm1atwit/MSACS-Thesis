@@ -1,0 +1,95 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries:
+
+@startuml banking-system
+class Transaction {
+  -amount: float
+  -type: str
+  ' "Withdrawal" or "Deposit"
+}
+
+class BankAccount {
+  -number: str
+  -owner: str
+  -balance: float
+  -transactions: List[Transaction]
+
+  +deposit(amount: float): str
+  ' deposit amount into this account balance and append matching Transaction to transactions
+  +withdraw(amount: float): str
+  ' attempt to withdraw amount from account balance, or return "Insufficient funds" if amount > balance and append matching Transaction to transactions
+
+}
+
+class Customer {
+  -name: str
+  -account: BankAccount
+}
+
+class Bank {
+  -customers: List[Customer]
+
+  +add_customer(customer: Customer)
+  ' add a Customer to customers
+  +remove_customer(customer: Customer)
+  ' remove a Customer from customers
+}
+
+BankAccount "1" -- "*" Transaction: has
+Customer "1" -- "1" BankAccount: owns
+Bank "1" -- "*" Customer: has
+@enduml
+
+
+### Assistant
+Here is the Python implementation for the given PlantUML class diagram:
+
+```python
+from typing import List
+
+class Transaction:
+    def __init__(self, amount:float, _type:str):
+        self.amount = amount
+        self.type = _type
+
+class BankAccount:
+    def __init__(self, number:str, owner:str, balance:float=0):
+        self.number = number
+        self.owner = owner
+        self.balance = balance
+        self.transactions = []
+    
+    def deposit(self, amount:float)->str:
+        self.balance += amount
+        transaction = Transaction(amount, "Deposit")
+        self.transactions.append(transaction)
+        return f'Successfully deposited ${amount}'
+
+    def withdraw(self, amount:float)->str:
+        if amount > self.balance:
+            return 'Insufficient funds'
+        else:
+            self.balance -= amount
+            transaction = Transaction(amount, "Withdrawal")
+            self.transactions.append(transaction)
+            return f'Successfully withdrew ${amount}'
+
+class Customer:
+    def __init__(self, name:str, account:BankAccount):
+        self.name = name
+        self.account = account
+
+class Bank:
+    def __init__(self):
+        self.customers = []
+
+    def add_customer(self, customer:Customer):
+        self.customers.append(customer)
+
+    def remove_customer(self, customer:Customer):
+        self.customers.remove(customer)
+```
+This python program creates classes for `Transaction`, `BankAccount`, `Customer` and `Bank`. The `BankAccount` class includes methods for depositing and withdrawing money which also create new `Transaction` objects and add them to the list of transactions associated with that account. The `Bank` class allows adding and removing customers.

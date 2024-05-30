@@ -1,0 +1,134 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries:
+
+@startuml banking-system
+class Transaction {
+  -amount: float
+  -type: str
+  ' "Withdrawal" or "Deposit"
+}
+
+class BankAccount {
+  -number: str
+  -owner: str
+  -balance: float
+  -transactions: List[Transaction]
+
+  +deposit(amount: float): str
+  ' deposit amount into this account balance and append matching Transaction to transactions
+  +withdraw(amount: float): str
+  ' attempt to withdraw amount from account balance, or return "Insufficient funds" if amount > balance and append matching Transaction to transactions
+
+}
+
+class Customer {
+  -name: str
+  -account: BankAccount
+}
+
+class Bank {
+  -customers: List[Customer]
+
+  +add_customer(customer: Customer)
+  ' add a Customer to customers
+  +remove_customer(customer: Customer)
+  ' remove a Customer from customers
+}
+
+BankAccount "1" -- "*" Transaction: has
+Customer "1" -- "1" BankAccount: owns
+Bank "1" -- "*" Customer: has
+@enduml
+
+
+### Assistant
+
+```python
+import typing as tp
+from dataclasses import dataclass
+
+@dataclass
+class Transaction:
+    amount: float = None
+    type: str = None
+    
+    def __init__(self, amount: float, type: str):
+        self.amount = amount
+        self.type = type
+        
+    @staticmethod
+    def get_transaction():
+        pass
+    
+    @staticmethod
+    def set_transaction():
+        pass
+    
+    @staticmethod
+    def delete_transaction():
+        pass
+
+@dataclass
+class BankAccount:
+    number: str = None
+    owner: str = None
+    balance: float = None
+    transactions: list[Transaction] = None
+    
+    def __init__(self, number: str, owner: str, balance: float, transactions: list[Transaction]):
+        self.number = number
+        self.owner = owner
+        self.balance = balance
+        self.transactions = transactions
+        
+    def deposit(self, amount: float) -> str:
+        # TODO: implement logic here
+        raise NotImplementedError()
+    
+    def withdraw(self, amount: float) -> str:
+        # TODO: implement logic here
+        raise NotImplementedError()
+
+@dataclass
+class Customer:
+    name: str = None
+    account: BankAccount = None
+    
+    def __init__(self, name: str, account: BankAccount):
+        self.name = name
+        self.account = account
+
+@dataclass
+class Bank:
+    customers: list[Customer] = None
+    
+    def __init__(self, customers: list[Customer]):
+        self.customers = customers
+        
+    def add_customer(self, customer: Customer):
+        # TODO: implement logic here
+        raise NotImplementedError()
+    
+    def remove_customer(self, customer: Customer):
+        # TODO: implement logic here
+        raise NotImplementedError()
+
+def main():
+    # create objects
+    transaction = Transaction("50", "Withdrawal")
+    bank_account = BankAccount("123456789", "John Doe", 1000, [])
+    customer = Customer("Jane Doe", bank_account)
+    bank = Bank([customer])
+    
+    # test methods
+    print(bank_account.deposit(50))
+    print(bank_account.withdraw(50))
+    print(bank.add_customer(customer))
+    print(bank.remove_customer(customer))
+
+if __name__ == "__main__":
+    main()
+```

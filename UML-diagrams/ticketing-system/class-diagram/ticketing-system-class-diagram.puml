@@ -1,0 +1,51 @@
+@startuml ticketing-system
+class Ticket {
+    ticket_id : int
+    description : String
+    status : String
+    customer : Customer
+    assigned_agent : Agent
+    +__init__(ticket_id, customer, description)
+    ' initializes Ticket object with given information, no assigned agent, and a "Open" status
+    +assign_agent(agent)
+    ' assigns agent to this ticket and adds this ticket to that agent's tickets
+}
+
+class Customer {
+    name : String
+    contact_details : String
+    ticket_system : TicketSystem
+    +__init__(name, ticket_system, contact_details)
+    +submit_ticket(description) : Ticket
+    ' calls ticket_system.create_ticket(self, description) to submit a ticket to the system
+}
+
+class Agent {
+    name : String
+    tickets : List of assigned tickets
+    +__init__(name)
+}
+
+class TicketSystem {
+    tickets : List of tickets
+    customers : List of customers
+    agents : List of agents
+    +__init__()
+    ' initializes tickets, customers, and agents to empty lists
+    +create_customer(name, contact_details) : Customer
+    ' creates a customer with given information as part of this ticket system, adds them to customers
+    +create_ticket(customer, description) : Ticket
+    ' creates a ticket with the given information and an id of 1 + the length of the tickets list, adds it to tickets
+    +create_agent(name) : Agent
+    ' creates an agent and adds them to agents
+    +close_ticket(ticket)
+    ' sets given ticket status to closed and removes it from it's assigned agent's ticket list if an agent is assigned
+    +assign_ticket(ticket, agent)
+
+}
+
+TicketSystem "1" -- "*" Ticket : creates
+TicketSystem "1" -- "*" Customer : creates
+TicketSystem "1" -- "*" Agent : creates
+Customer "1" -- "*" Ticket : submits
+@enduml

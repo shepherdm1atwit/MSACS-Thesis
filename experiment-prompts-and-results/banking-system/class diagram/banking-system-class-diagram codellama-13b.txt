@@ -1,0 +1,162 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries. Do not implement "main" functionality:
+
+@startuml banking-system
+class Transaction {
+  -amount: float
+  -type: str
+  ' "Withdrawal" or "Deposit"
+}
+
+class BankAccount {
+  -number: str
+  -owner: str
+  -balance: float
+  -transactions: List[Transaction]
+
+  +deposit(amount: float): str
+  ' deposit amount into this account balance and append matching Transaction to transactions
+  +withdraw(amount: float): str
+  ' attempt to withdraw amount from account balance, or return "Insufficient funds" if amount > balance and append matching Transaction to transactions
+
+}
+
+class Customer {
+  -name: str
+  -account: BankAccount
+}
+
+class Bank {
+  -customers: List[Customer]
+
+  +add_customer(customer: Customer)
+  ' add a Customer to customers
+  +remove_customer(customer: Customer)
+  ' remove a Customer from customers
+}
+
+BankAccount "1" -- "*" Transaction: has
+Customer "1" -- "1" BankAccount: owns
+Bank "1" -- "*" Customer: has
+@enduml
+
+
+### Assistant
+
+```python
+from typing import List
+import random
+
+class Transaction():
+    def __init__(self, type_, amount):
+        self._type = type_
+        self._amount = amount
+    
+    @property
+    def type_(self):
+        return self._type
+        
+    @property
+    def amount(self):
+        return self._amount
+
+class BankAccount():
+    def __init__(self, number, owner, balance=0):
+        self._number = number
+        self._owner = owner
+        self._balance = balance
+        self._transactions = []
+    
+    @property
+    def number(self):
+        return self._number
+    
+    @property
+    def owner(self):
+        return self._owner
+    
+    @property
+    def balance(self):
+        return self._balance
+    
+    @property
+    def transactions(self):
+        return self._transactions
+    
+    def deposit(self, amount):
+        transaction = Transaction("Deposit", amount)
+        self._balance += amount
+        self._transactions.append(transaction)
+        return f'{self._owner}: Deposited ${amount}'
+    
+    def withdraw(self, amount):
+        if self._balance < amount:
+            return f'{self._owner}: Insufficient Funds'
+            
+        transaction = Transaction("Withdrawal", amount)
+        self._balance -= amount
+        self._transactions.append(transaction)
+        return f'{self._owner}: Withdrew ${amount}'
+
+class Customer():
+    def __init__(self, name, account):
+        self._name = name
+        self._account = account
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @property
+    def account(self):
+        return self._account
+
+class Bank():
+    def __init__(self):
+        self._customers = []
+    
+    @property
+    def customers(self):
+        return self._customers
+    
+    def add_customer(self, customer):
+        self._customers.append(customer)
+    
+    def remove_customer(self, customer):
+        try:
+            self._customers.remove(customer)
+        except ValueError as e:
+            print('No such customer')
+
+def main():
+    # create some accounts
+    account1 = BankAccount('123456789', 'John Smith', 1000)
+    account2 = BankAccount('987654321', 'Jane Doe', 500)
+    account3 = BankAccount('555555555', 'Bob Johnson', 200)
+
+    # create some customers
+    customer1 = Customer('John Smith', account1)
+    customer2 = Customer('Jane Doe', account2)
+    customer3 = Customer('Bob Johnson', account3)
+
+    # create a bank instance
+    bank = Bank()
+
+    # add customers to the bank
+    bank.add_customer(customer1)
+    bank.add_customer(customer2)
+    bank.add_customer(customer3)
+
+    # simulate some transactions
+    for i in range(10):
+        account = random.choice([account1, account2, account3])
+        amount = round(random.uniform(-100, 100), 2)
+        message = account.withdraw(amount) if amount < 0 else account.deposit(abs(amount))
+        print(message)
+
+if __name__ == '__main__':
+    main()
+```

@@ -1,0 +1,188 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries. Do not implement "main" functionality:
+
+@startuml store-customer
+
+class Item {
+    -name: str
+    -price: float
+    +__init__(name: str, price: float): None
+    +__eq__(other: Item) -> bool: bool
+}
+
+class Store {
+    -name: str
+    -items: List[Item]
+    +__init__(name: str): None
+    +add_items(items: List[Item]): None
+    ' adds items from "items" list to this store's list of items
+    +has_item(item: Item) -> bool: bool
+    ' checks if this store has a given item
+    +print_items(): None
+    ' prints all items this store has
+}
+
+class Customer {
+    -name: str
+    -owned_items: List[Item]
+    -shopping_list: List[Item]
+    -cart: List[Item]
+    +__init__(name: str): None
+    +add_to_shopping_list(items: List[Item]): None
+    ' adds items from "items" list to this customer's shopping list if they are not already in this customer's list
+    +add_to_cart(item: Item): None
+    ' adds an item to this customer's cart and prints that they have added it to their cart
+    +visit_store(store: Store): None
+    ' makes this customer visit a store, adds all items from this customer's shopping list that are sold at that store has to the customer's cart, adds all items from cart to customer's "owned" list, removes all items in cart from shopping list, empties cart, prints what the customer bought at this store and prints customer's current status (from get_status)
+    +get_status() -> str: str
+    ' returns a string describing the items on the customer's shopping list and the items the customer owns
+}
+
+Store "1" -- "*" Item : has
+Customer "1" -- "*" Item : needs
+Customer "1" -- "*" Item : has
+Customer "1" -- "*" Item : buys
+Customer "1" -- "*" Store : visits
+
+@enduml
+
+### Assistant
+
+```python
+import math
+
+class Item:
+    def __init__(self, name: str, price: float):
+        self.name = name
+        self.price = price
+    
+    def __eq__(self, other: Item):
+        return self.name == other.name and self.price == other.price
+
+class Store:
+    def __init__(self, name: str):
+        self.name = name
+        self.items = []
+    
+    def add_items(self, items: List[Item]):
+        for item in items:
+            self.items.append(item)
+    
+    def has_item(self, item: Item) -> bool:
+        return item in self.items
+    
+    def print_items(self):
+        for item in self.items:
+            print(f"{item.name}: ${item.price}")
+
+class Customer:
+    def __init__(self, name: str):
+        self.name = name
+        self.owned_items = []
+        self.shopping_list = []
+        self.cart = []
+    
+    def add_to_shopping_list(self, items: List[Item]):
+        for item in items:
+            if item not in self.shopping_list:
+                self.shopping_list.append(item)
+    
+    def add_to_cart(self, item: Item):
+        if item not in self.cart:
+            self.cart.append(item)
+        else:
+            print("This item is already in your cart!")
+    
+    def visit_store(self, store: Store):
+        for item in self.shopping_list:
+            if store.has_item(item):
+                self.cart.append(item)
+        
+        for item in self.cart:
+            self.owned_items.append(item)
+        
+        self.shopping_list = [x for x in self.shopping_list if x not in self.cart]
+        self.cart = []
+        
+        print(f"\nWelcome back, {self.name}! You just purchased:\n")
+        for item in self.owned_items:
+            print(f"{item.name}: ${item.price}")
+
+    def get_status(self):
+        owned_names = ", ".join([i.name for i in self.owned_items])
+        shopping_names = ", ".join([i.name for i in self.shopping_list])
+        cart_names = ", ".join([i.name for i in self.cart])
+        return f"Owned Items: {owned_names}\nShopping List: {shopping_names}\nCart: {cart_names}"
+
+def main():
+    # Create stores
+    store1 = Store("Amazon")
+    store2 = Store("Best Buy")
+    store3 = Store("Walmart")
+
+    # Create customers
+    customer1 = Customer("John")
+    customer2 = Customer("Jane")
+
+    # Add items to stores
+    store1.add_items([
+        Item("Laptop", 500),
+        Item("Phone", 400),
+        Item("Headphones", 300),
+        Item("TV", 800),
+        Item("Gaming Console", 600)
+    ])
+    store2.add_items([
+        Item("Laptop", 500),
+        Item("Phone", 400),
+        Item("Headphones", 300),
+        Item("TV", 800),
+        Item("Gaming Console", 600)
+    ])
+    store3.add_items([
+        Item("Laptop", 500),
+        Item("Phone", 400),
+        Item("Headphones", 300),
+        Item("TV", 800),
+        Item("Gaming Console", 600)
+    ])
+
+    # Make customers buy stuff
+    customer1.add_to_shopping_list([
+        Item("Laptop", 500),
+        Item("Phone", 400),
+        Item("Headphones", 300),
+        Item("TV", 800),
+        Item("Gaming Console", 600)
+    ])
+    customer1.add_to_cart(Item("Laptop", 500))
+    customer1.add_to_cart(Item("Phone", 400))
+    customer1.add_to_cart(Item("Headphones", 300))
+    customer1.add_to_cart(Item("TV", 800))
+    customer1.add_to_cart(Item("Gaming Console", 600))
+    customer1.visit_store(store1)
+    customer1.visit_store(store2)
+    customer1.visit_store(store3)
+
+    customer2.add_to_shopping_list([
+        Item("Laptop", 500),
+        Item("Phone", 400),
+        Item("Headphones", 300),
+        Item("TV", 800),
+        Item("Gaming Console", 600)
+    ])
+    customer2.add_to_cart(Item("Laptop", 500))
+    customer2.add_to_cart(Item("Phone", 400))
+    customer2.add_to_cart(Item("Headphones", 300))
+    customer2.add_to_cart(Item("TV", 800))
+    customer2.add_to_cart(Item("Gaming Console", 600))
+    customer2.visit_store(store1)
+    customer2.visit_store(store2)
+    customer2.visit_store(store3)
+
+if __name__ == "__main__":
+    main()
+```

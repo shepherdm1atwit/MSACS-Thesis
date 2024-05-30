@@ -1,0 +1,72 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries:
+
+@startuml person-student-teacher
+class Person {
+    -name: str
+    -age: int
+    +introduce(): str
+    ' returns a string that introduces the person's name and age.
+}
+
+class Student {
+    -grade: str
+    +study(hours: int): str
+    ' returns a string that states that this student studied for a certain number of hours (including student's name).
+    +get_profile(): str
+    ' returns a string representation of the student's profile including name, age, and grade
+}
+
+class Teacher {
+    -subject: str
+    +teach(topic: str): str
+    ' returns a string that states that this teacher teaches about a given topic in their subject  (including teacher's name)
+    +grade_student(student: Student, grade:str)
+    ' changes a student's grade
+}
+
+Person <|-- Student
+Person <|-- Teacher
+@enduml
+
+### Assistant
+Here is the Python implementation corresponding to your PlantUML class diagram:
+
+```python
+class Person:
+    def __init__(self, name, age):
+        self._name = name
+        self._age = age
+    
+    def introduce(self):
+        return f"Hello, my name is {self._name}. I am {self._age} years old."
+
+class Student(Person):
+    def __init__(self, name, age, grade):
+        super().__init__(name, age)
+        self._grade = grade
+    
+    def study(self, hours):
+        return f"{self._name} studies for {hours} hours."
+    
+    def get_profile(self):
+        return f"Name: {self._name}, Age: {self._age}, Grade: {self._grade}"
+
+class Teacher(Person):
+    def __init__(self, name, age, subject):
+        super().__init__(name, age)
+        self._subject = subject
+    
+    def teach(self, topic):
+        return f"{self._name} teaches {topic} in {self._subject}."
+    
+    def grade_student(self, student, grade):
+        if isinstance(student, Student):
+            student._grade = grade
+        else:
+            raise ValueError("Invalid student")
+```
+In this code, `Student` and `Teacher` classes inherit from the `Person` class using the `(Person)` syntax after the class definition. The methods defined in each class use `self` to access instance variables and methods provided by the base class (`Person`).

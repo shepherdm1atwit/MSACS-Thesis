@@ -1,0 +1,102 @@
+Below is an instruction that describes a task. Write a response that appropriately completes the request.
+
+### Instruction:
+Generate complete and fully implemented Python code based on the following annotated PlantUML activity diagram including the import of all necessary libraries. Do not implement "main" functionality:
+
+@startuml Person
+'"Person" class functionality
+skinparam defaultTextAlignment center
+start
+partition constructor {
+  :Create Person object with name and age;
+}
+repeat :wait for method call;
+  partition introduce(self) {
+    :Return introduction string
+    containing name and age;
+  }
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Student
+'"Student(Person)" class functionality
+skinparam defaultTextAlignment center
+start
+partition constructor {
+    :Create Student object with name and age 
+    (from superclass), and grade;
+}
+repeat :wait for method call;
+  split
+  partition "study(self, hours)" {
+    :Return string containing 
+    name and hours studied;
+  }
+  split again
+  partition "get_profile(self)" {
+    :Return student profile string;
+    'string in "Name: {self.name}\nAge: {self.age}\nGrade: {self.grade}" format
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Teacher
+'"Teacher(Person)" class functionality
+skinparam defaultTextAlignment center
+start
+partition constructor {
+    :Create Teacher object with name and age 
+    (from superclass), and subject taught;
+}
+repeat :wait for method call;
+  split
+  partition "teach(self, topic)" {
+    :Return string containing name, topic 
+    taught about, and subject taught;
+  }
+  split again
+  partition "grade_student(self, student, grade)" {
+    :Change given Student object's grade;
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+### Response:
+
+```python
+import uml_diagram as plant
+
+@plant.startuml
+class Person {
+  +__init__(self, name: str, age: int)
+  -introduce()
+}
+
+@enduml
+
+@plant.startuml
+class Student(Person):
+  +__init__(self, name: str, age: int, grade: float)
+  -study(hours: int)
+  -get_profile() -> str
+@enduml
+
+@plant.startuml
+class Teacher(Person):
+  +__init__(self, name: str, age: int, subject: str)
+  -teach(topic: str)
+  -grade_student(student: Student, new_grade: float)
+@enduml
+```
+
+This code defines three classes `Person`, `Student` which inherits from `Person`, and `Teacher` which also inherits from `Person`. The `@plant.startuml` decorator is used to indicate that this block should be interpreted by PlantUML.
+
+The `+` symbol indicates public methods or attributes, `-` private ones, and `:` denotes comments inside each method/function definition. The `:wait for method call;` notation means that these functions will wait until called upon by another function or script. The `split` keyword separates two different sections within one method. The `end split` statement ends the second section of a split method. The `repeat` keyword repeats the previous action until a condition is met (`while object exists?`). In this case, it continues waiting for a method call until the object no longer exists. Finally, the `@enduml` directive signals the end of the UML diagram. Note that you may need to install the `pip install plantuml-markdown` library if you haven't already done so. 

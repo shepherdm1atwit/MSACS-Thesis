@@ -1,0 +1,111 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML activity diagram including the import of all necessary libraries:
+
+@startuml Person
+'"Person" class functionality
+skinparam defaultTextAlignment center
+start
+partition constructor {
+  :Create Person object with name and age;
+}
+repeat :wait for method call;
+  partition introduce(self) {
+    :Return introduction string
+    containing name and age;
+  }
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Student
+'"Student(Person)" class functionality
+skinparam defaultTextAlignment center
+start
+partition constructor {
+    :Create Student object with name and age 
+    (from superclass), and grade;
+}
+repeat :wait for method call;
+  split
+  partition "study(self, hours)" {
+    :Return string containing 
+    name and hours studied;
+  }
+  split again
+  partition "get_profile(self)" {
+    :Return student profile string;
+    'string in "Name: {self.name}\nAge: {self.age}\nGrade: {self.grade}" format
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Teacher
+'"Teacher(Person)" class functionality
+skinparam defaultTextAlignment center
+start
+partition constructor {
+    :Create Teacher object with name and age 
+    (from superclass), and subject taught;
+}
+repeat :wait for method call;
+  split
+  partition "teach(self, topic)" {
+    :Return string containing name, topic 
+    taught about, and subject taught;
+  }
+  split again
+  partition "grade_student(self, student, grade)" {
+    :Change given Student object's grade;
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+### Assistant
+
+```python
+import re
+
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    
+    def introduce(self):
+        return f"Hello! My name is {self.name}, and I am {self.age} years old."
+
+class Student(Person):
+    def __init__(self, name, age, grade):
+        super().__init__(name, age)
+        self.grade = grade
+    
+    def study(self, hours):
+        return f"{self.name} has been studying for {hours} hours."
+    
+    def get_profile(self):
+        return f"Name: {self.name}\nAge: {self.age}\nGrade: {self.grade}"
+
+class Teacher(Person):
+    def __init__(self, name, age, subject):
+        super().__init__(name, age)
+        self.subject = subject
+    
+    def teach(self, topic):
+        return f"{self.name} is teaching a lesson on {topic} to their students."
+    
+    def grade_student(self, student, grade):
+        if not isinstance(student, Student):
+            raise TypeError("Only Students can be graded.")
+        
+        student.grade = grade
+        return f"{student.name}'s new grade is {student.grade}."
+```

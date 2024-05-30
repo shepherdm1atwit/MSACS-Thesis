@@ -1,0 +1,94 @@
+Below is an instruction that describes a task. Write a response that appropriately completes the request.
+
+### Instruction:
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries:
+
+@startuml banking-system
+class Transaction {
+  -amount: float
+  -type: str
+  ' "Withdrawal" or "Deposit"
+}
+
+class BankAccount {
+  -number: str
+  -owner: str
+  -balance: float
+  -transactions: List[Transaction]
+
+  +deposit(amount: float): str
+  ' deposit amount into this account balance and append matching Transaction to transactions
+  +withdraw(amount: float): str
+  ' attempt to withdraw amount from account balance, or return "Insufficient funds" if amount > balance and append matching Transaction to transactions
+
+}
+
+class Customer {
+  -name: str
+  -account: BankAccount
+}
+
+class Bank {
+  -customers: List[Customer]
+
+  +add_customer(customer: Customer)
+  ' add a Customer to customers
+  +remove_customer(customer: Customer)
+  ' remove a Customer from customers
+}
+
+BankAccount "1" -- "*" Transaction: has
+Customer "1" -- "1" BankAccount: owns
+Bank "1" -- "*" Customer: has
+@enduml
+
+
+### Response:
+```python
+from typing import List
+
+class Transaction:
+    def __init__(self, amount: float, transaction_type: str):
+        self.amount = amount
+        self.transaction_type = transaction_type
+
+class BankAccount:
+    def __init__(self, number: str, owner: str, balance: float):
+        self.number = number
+        self.owner = owner
+        self.balance = balance
+        self.transactions = []
+    
+    def deposit(self, amount: float) -> None:
+        self.balance += amount
+        self.transactions.append(Transaction(amount, "Deposit"))
+        print("Deposited", amount)
+    
+    def withdraw(self, amount: float) -> str:
+        if amount <= self.balance:
+            self.balance -= amount
+            self.transactions.append(Transaction(amount, "Withdrawal"))
+            print("Withdrew", amount)
+            return ""
+        else:
+            return "Insufficient funds"
+
+class Customer:
+    def __init__(self, name: str, account: BankAccount):
+        self.name = name
+        self.account = account
+
+class Bank:
+    def __init__(self):
+        self.customers = []
+    
+    def add_customer(self, customer: Customer) -> None:
+        self.customers.append(customer)
+    
+    def remove_customer(self, customer: Customer) -> None:
+        self.customers.remove(customer)
+```
+
+Note: The `+` in front of method names indicates they are public methods while `-` indicates private attributes.
+
+The above implementation assumes you have imported the necessary libraries for lists (`List`) and printing output (`print`). If not, you can replace them with regular lists and use `print()` function as needed. 

@@ -1,0 +1,161 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML activity diagram including the import of all necessary libraries:
+
+@startuml Transaction
+'"Transaction" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, amount, type)" {
+  :Create Transaction object with amount and type string;
+}
+stop
+@enduml
+
+@startuml BankAccount
+'"BankAccount" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, number, owner, balance)" {
+    :Create BankAccount object with account number,
+    owner, balance, and empty list transactions;
+}
+repeat :wait for method call;
+  split
+  partition "deposit(self, amount)" {
+    :Add amount to balance;
+    :Add new Transaction(amount, "Deposit")
+    to transactions;
+  }
+  split again
+  partition "withdraw(self, amount)" {
+    if (balance >= amount) then (yes)
+      :Subtract amount from balance;
+      :Add new Transaction(amount, "Withdrawal")
+      to transactions;
+    else (no)
+      :Return "Insufficient Funds";
+    endif
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+@startuml Customer
+'"Customer" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self, name, account)" {
+  :Create Customer object with name 
+  and BankAccount account;
+}
+stop
+@enduml
+
+@startuml Bank
+'"Bank" class functionality
+skinparam defaultTextAlignment center
+start
+partition "constructor(self)" {
+  :Create Bank object with 
+  empty list customers;
+}
+repeat :wait for method call;
+  split
+  partition "add_customer(self, customer)" {
+    :Add given Customer to customers;
+  }
+  split again
+  partition "remove_customer(self, customer)" {
+    :Remove given Customer from customers;
+  }
+  end split
+repeat while (object exists?) is (yes)
+->no;
+stop
+@enduml
+
+### Assistant
+
+```python
+from typing import List
+import datetime as dt
+
+class Transaction:
+    def __init__(self, amount: float, type: str):
+        self._amount = amount
+        self._type = type
+    
+    @property
+    def amount(self) -> float:
+        return self._amount
+    
+    @property
+    def type(self) -> str:
+        return self._type
+
+class BankAccount:
+    def __init__(self, number: int, owner: str, balance: float, transactions: List[Transaction]):
+        self._number = number
+        self._owner = owner
+        self._balance = balance
+        self._transactions = transactions
+    
+    @property
+    def number(self) -> int:
+        return self._number
+    
+    @property
+    def owner(self) -> str:
+        return self._owner
+    
+    @property
+    def balance(self) -> float:
+        return self._balance
+    
+    @property
+    def transactions(self) -> List[Transaction]:
+        return self._transactions
+    
+    def deposit(self, amount: float) -> None:
+        self._balance += amount
+        self._transactions.append(Transaction(amount, 'Deposit'))
+        
+    def withdraw(self, amount: float) -> Union[float, str]:
+        if self._balance < amount:
+            return 'Insufficient funds'
+        self._balance -= amount
+        self._transactions.append(Transaction(amount, 'Withdrawal'))
+        return amount
+
+class Customer:
+    def __init__(self, name: str, account: BankAccount):
+        self._name = name
+        self._account = account
+    
+    @property
+    def name(self) -> str:
+        return self._name
+    
+    @property
+    def account(self) -> BankAccount:
+        return self._account
+
+class Bank:
+    def __init__(self):
+        self._customers = []
+    
+    @property
+    def customers(self) -> List[Customer]:
+        return self._customers
+    
+    def add_customer(self, customer: Customer) -> None:
+        self._customers.append(customer)
+    
+    def remove_customer(self, customer: Customer) -> None:
+        self._customers.remove(customer)
+```

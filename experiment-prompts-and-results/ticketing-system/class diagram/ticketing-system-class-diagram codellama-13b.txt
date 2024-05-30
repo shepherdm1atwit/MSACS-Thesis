@@ -1,0 +1,184 @@
+### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Generate complete and fully implemented Python code based on the following annotated PlantUML class diagram including the import of all necessary libraries. Do not implement "main" functionality:
+
+@startuml ticketing-system
+class Ticket {
+    ticket_id : int
+    description : String
+    status : String
+    customer : Customer
+    assigned_agent : Agent
+    +__init__(ticket_id, customer, description)
+    ' initializes Ticket object with given information, no assigned agent, and a "Open" status
+    +assign_agent(agent)
+    ' assigns agent to this ticket and adds this ticket to that agent's tickets
+}
+
+class Customer {
+    name : String
+    contact_details : String
+    ticket_system : TicketSystem
+    +__init__(name, ticket_system, contact_details)
+    +submit_ticket(description) : Ticket
+    ' calls ticket_system.create_ticket(self, description) to submit a ticket to the system
+}
+
+class Agent {
+    name : String
+    tickets : List of assigned tickets
+    +__init__(name)
+}
+
+class TicketSystem {
+    tickets : List of tickets
+    customers : List of customers
+    agents : List of agents
+    +__init__()
+    ' initializes tickets, customers, and agents to empty lists
+    +create_customer(name, contact_details) : Customer
+    ' creates a customer with given information as part of this ticket system, adds them to customers
+    +create_ticket(customer, description) : Ticket
+    ' creates a ticket with the given information and an id of 1 + the length of the tickets list, adds it to tickets
+    +create_agent(name) : Agent
+    ' creates an agent and adds them to agents
+    +close_ticket(ticket)
+    ' sets given ticket status to closed and removes it from it's assigned agent's ticket list if an agent is assigned
+    +assign_ticket(ticket, agent)
+
+}
+
+TicketSystem "1" -- "*" Ticket : creates
+TicketSystem "1" -- "*" Customer : creates
+TicketSystem "1" -- "*" Agent : creates
+Customer "1" -- "*" Ticket : submits
+@enduml
+
+### Assistant
+
+```python
+import uuid
+from typing import List
+
+class Ticket:
+    def __init__(self, ticket_id: str, customer: "Customer", description: str):
+        self._ticket_id = ticket_id
+        self._customer = customer
+        self._description = description
+        self._status = "open"
+    
+    @property
+    def ticket_id(self):
+        return self._ticket_id
+        
+    @property
+    def customer(self):
+        return self._customer
+    
+    @property
+    def description(self):
+        return self._description
+    
+    @property
+    def status(self):
+        return self._status
+    
+    def close(self):
+        self._status = "closed"
+
+class Customer:
+    def __init__(self, name: str, ticket_system: "TicketSystem", contact_details: str):
+        self._name = name
+        self._contact_details = contact_details
+        self._tickets = []
+        self._ticket_system = ticket_system
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @property
+    def contact_details(self):
+        return self._contact_details
+    
+    @property
+    def tickets(self):
+        return self._tickets
+    
+    def submit_ticket(self, description: str) -> Ticket:
+        new_ticket = self._ticket_system.create_ticket(self, description)
+        self._tickets.append(new_ticket)
+        return new_ticket
+
+class Agent:
+    def __init__(self, name: str):
+        self._name = name
+        self._assigned_tickets = []
+    
+    @property
+    def name(self):
+        return self._name
+    
+    @property
+    def assigned_tickets(self):
+        return self._assigned_tickets
+    
+    def assign_ticket(self, ticket: Ticket):
+        self._assigned_tickets.append(ticket)
+        ticket.assign_agent(self)
+
+class TicketSystem:
+    def __init__(self):
+        self._customers = {}
+        self._agents = {}
+        self._tickets = {}
+    
+    @property
+    def customers(self):
+        return self._customers
+    
+    @property
+    def agents(self):
+        return self._agents
+    
+    @property
+    def tickets(self):
+        return self._tickets
+    
+    def create_customer(self, name: str, contact_details: str) -> Customer:
+        new_customer = Customer(name, self, contact_details)
+        self._customers[name] = new_customer
+        return new_customer
+    
+    def create_ticket(self, customer: Customer, description: str) -> Ticket:
+        new_ticket = Ticket(str(uuid.uuid4()), customer, description)
+        self._tickets[new_ticket.ticket_id] = new_ticket
+        return new_ticket
+    
+    def create_agent(self, name: str) -> Agent:
+        new_agent = Agent(name)
+        self._agents[name] = new_agent
+        return new_agent
+    
+    def close_ticket(self, ticket: Ticket):
+        ticket.close()
+        del self._tickets[ticket.ticket_id]
+    
+    def assign_ticket(self, ticket: Ticket, agent: Agent):
+        agent.assign_ticket(ticket)
+
+if __name__ == "__main__":
+    # Example usage
+    ts = TicketSystem()
+    c1 = ts.create_customer("John", "+358 200 976")
+    t1 = c1.submit_ticket("I have a problem with my computer.")
+    print(f"{c1.name}'s first ticket has ID {t1.ticket_id}")
+    a1 = ts.create_agent("Alice")
+    a1.assign_ticket(t1)
+    print(f"Agent {a1.name} now has {len(a1.assigned_tickets)} assigned tickets.")
+    ts.close_ticket(t1)
+    print(f"The ticket was closed by the agent.")
+    print(f"There are currently {len(ts.tickets)} open tickets in total.")
+```
